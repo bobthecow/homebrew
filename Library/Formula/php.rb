@@ -81,6 +81,7 @@ class Php <Formula
       "--with-bz2=/usr",
       "--with-ldap",
       "--with-ldap-sasl=/usr",
+      "--with-pear=#{HOMEBREW_PREFIX}/lib/php",
       "--with-xmlrpc",
       "--with-iodbc",
       "--with-kerberos=/usr",
@@ -155,6 +156,7 @@ class Php <Formula
     system "make install"
 
     system "cp ./php.ini-production #{etc}/php.ini" unless File.exists? "#{etc}/php.ini"
+    system "#{prefix}/bin/pear config-set php_ini #{etc}/php.ini"
   end
 
  def caveats; <<-EOS

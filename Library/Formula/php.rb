@@ -41,8 +41,8 @@ class Php <Formula
      ['--with-mysql', 'Include MySQL support'],
      ['--with-pgsql', 'Include PostgreSQL support'],
      ['--with-mssql', 'Include MSSQL-DB support'],
-     ['--with-fpm', 'Enable building of the fpm SAPI executable'],
-     ['--with-apache', 'Build shared Apache 2.0 Handler module'],
+     ['--with-fpm', 'Enable building of the fpm SAPI executable (implies --without-apache)'],
+     ['--without-apache', 'Build without shared Apache 2.0 Handler module'],
      ['--with-intl', 'Include internationalization support'],
      ['--without-readline', 'Build without readline support']
    ]
@@ -97,21 +97,13 @@ class Php <Formula
       "--mandir=#{man}"
     ]
 
-    # Bail if both php-fpm and apxs are enabled
-    # http://bugs.php.net/bug.php?id=52419
-    if (ARGV.include? '--with-fpm') && (ARGV.include? '--with-apache')
-      onoe "You can only enable PHP FPM or Apache, not both"
-      puts "http://bugs.php.net/bug.php?id=52419"
-      exit 99
-    end
-
     # Enable PHP FPM
     if ARGV.include? '--with-fpm'
       args.push "--enable-fpm"
     end
 
-    # Build Apache module
-    if ARGV.include? '--with-apache'
+    # Build Apache module by default
+    unless ARGV.include? '--with-fpm' or ARGV.include? '--without-apache'
       args.push "--with-apxs2=/usr/sbin/apxs"
       args.push "--libexecdir=#{prefix}/libexec"
     end
@@ -146,7 +138,7 @@ class Php <Formula
     ENV.O3 # Speed things up
     system "./configure", *configure_args
 
-    if ARGV.include? '--with-apache'
+    unless ARGV.include? '--without-apache'
       # Use Homebrew prefix for the Apache libexec folder
       inreplace "Makefile",
         "INSTALL_IT = $(mkinstalldirs) '$(INSTALL_ROOT)/usr/libexec/apache2' && $(mkinstalldirs) '$(INSTALL_ROOT)/private/etc/apache2' && /usr/sbin/apxs -S LIBEXECDIR='$(INSTALL_ROOT)/usr/libexec/apache2' -S SYSCONFDIR='$(INSTALL_ROOT)/private/etc/apache2' -i -a -n php5 libs/libphp5.so",

@@ -78,7 +78,6 @@ class Php <Formula
       "--with-bz2=/usr",
       "--with-ldap",
       "--with-ldap-sasl=/usr",
-      "--with-pear=#{HOMEBREW_PREFIX}/lib/php",
       "--with-xmlrpc",
       "--with-iodbc",
       "--with-kerberos=/usr",
@@ -153,7 +152,6 @@ class Php <Formula
     system "make install"
 
     system "cp ./php.ini-production #{etc}/php.ini" unless File.exists? "#{etc}/php.ini"
-    system "#{prefix}/bin/pear config-set php_ini #{etc}/php.ini"
   end
 
  def caveats; <<-EOS
@@ -166,6 +164,10 @@ To enable PHP in Apache add the following to httpd.conf and restart Apache:
 
 The php.ini file can be found in:
     #{etc}/php.ini
+
+'Fix' the default PEAR permissions and config:
+    chmod -R ug+w #{prefix}/lib/php
+    pear config-set php_ini #{etc}/php.ini
    EOS
  end
 end
